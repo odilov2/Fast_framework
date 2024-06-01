@@ -1,9 +1,8 @@
-
 from fastapi import FastAPI
 
 from auth import auth_router
 from category import category_router
-from order import order_router
+from orders import order_router
 from product import product_router
 
 app = FastAPI()

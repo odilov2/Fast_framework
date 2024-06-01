@@ -37,3 +37,36 @@ async def create_category(category: CategoryModel):
     session.commit()
 
     return HTTPException(status_code=status.HTTP_201_CREATED, detail="Successfully")
+
+
+@category_router.get('/{id}')
+async def get_category(id: int):
+    check_category = session.query(Category).filter(Category.id == id).first()
+    if check_category:
+        data = {
+            "id": check_category.id,
+            "name": check_category.name
+        }
+        return jsonable_encoder(data)
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+
+
+@category_router.put('/{id}')
+async def update_category(id: int, category: CategoryModel):
+    check_category = session.query(Category).filter(Category.id == id).first()
+    if check_category:
+        for key, value in category.dict(exclude_unset=True).items():
+            setattr(check_category, key, value)
+            session.commit()
+            return HTTPException(status_code=status.HTTP_200_OK, detail="Successfully")
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category not found")
+
+
+@category_router.delete('/{id}')
+async def delete_category(id: int):
+    check_category = session.query(Category).filter(Category.id == id).first()
+    if check_category:
+        session.delete(check_category)
+        session.commit()
+        return HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="Successfully")
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Category not found")

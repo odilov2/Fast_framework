@@ -13,18 +13,20 @@ class RegisterModel(BaseModel):
         is_active: Optional[bool]
 
 
+class UsersModel(BaseModel):
+        id: Optional[int]
+        first_name: str
+        last_name: str
+        username: str
+        password: str
+        email: str
+        is_staff: Optional[bool]
+        is_active: Optional[bool]
+
+
 class LoginModel(BaseModel):
         username: str
         password: str
-
-
-class UpdateUserModel(BaseModel):
-        username: str
-        first_name: str
-        last_name: str
-        password: str
-        is_staff: Optional[bool]
-        is_active: Optional[bool]
 
 
 class CategoryModel(BaseModel):
@@ -42,5 +44,5 @@ class ProductModel(BaseModel):
 
 class OrderModel(BaseModel):
         id: Optional[int]
-        user_id: int
+        users_id: int
         product_id: int
