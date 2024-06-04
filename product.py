@@ -19,7 +19,10 @@ async def product_data(status_code=status.HTTP_200_OK):
             "name": product.name,
             "description": product.description,
             "price": product.price,
-            "category_id": product.category_id,
+            "category": {
+                "id": product.category.id,
+                "name": product.category.name
+            }
         }
         for product in products
     ]
@@ -49,7 +52,19 @@ async def create_product(product: ProductModel):
             )
             session.add(new_product)
             session.commit()
-            return HTTPException(status_code=status.HTTP_201_CREATED, detail="Successfully")
+            data = [
+                {
+                    "id": product.id,
+                    "name": product.name,
+                    "description": product.description,
+                    "price": product.price,
+                    "category": {
+                        "id": product.category.id,
+                        "name": product.category.name
+                    }
+                }
+            ]
+            return jsonable_encoder(data)
     return HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="not found")
 
 
@@ -62,7 +77,10 @@ async def product_id(id: int):
             "name": check_product.name,
             "description": check_product.description,
             "price": check_product.price,
-            "category_id": check_product.category_id
+            "category": {
+                "id": check_product.category.id,
+                "name": check_product.category.name
+            }
         }
         return jsonable_encoder(data)
     return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")

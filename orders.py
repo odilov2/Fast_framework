@@ -1,5 +1,5 @@
 from models import Orders, Users, Product
-from schemas import OrderModel
+from schemas import OrderModel, UserOrderModel
 from fastapi import APIRouter, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from database import session, ENGINE
@@ -15,8 +15,26 @@ async def order():
     data = [
         {
             "id": order.id,
-            "users_id": order.users_id,
-            "product_id": order.product_id,
+            "users": {
+                "id": order.users.id,
+                "first_name": order.users.first_name,
+                "last_name": order.users.last_name,
+                "username": order.users.username,
+                "email": order.users.email,
+                "is_staff": order.users.is_staff,
+                "is_active": order.users.is_active
+            },
+            "product_id": {
+                "id": order.product.id,
+                "name": order.product.name,
+                "description": order.product.description,
+                "price": order.product.price,
+                "category": {
+                    "id": order.product.category.id,
+                    "name": order.product.category.name
+                }
+            },
+            "count": order.counts
         }
         for order in orders
     ]
@@ -36,12 +54,42 @@ async def order_create(order: OrderModel):
         new_order = Orders(
             id=order.id,
             users_id=order.users_id,
-            product_id=order.product_id
+            product_id=order.product_id,
+            count=order.count
         )
         session.add(new_order)
         session.commit()
 
-        return HTTPException(status_code=status.HTTP_201_CREATED, detail="Successfully")
+        data = {
+            "succes": True,
+            "code": 201,
+            "message": "Created Order",
+            "data": {
+                "id": new_order.id,
+                "users": {
+                    "id": new_order.users.id,
+                    "first_name": new_order.users.first_name,
+                    "last_name": new_order.users.last_name,
+                    "username": new_order.users.username,
+                    "email": new_order.users.email,
+                    "is_staff": new_order.users.is_staff,
+                    "is_active": new_order.users.is_active
+                },
+                "product_id": {
+                    "id": new_order.product.id,
+                    "name": new_order.product.name,
+                    "description": new_order.product.description,
+                    "price": new_order.product.price,
+                    "category": {
+                        "id": new_order.product.category.id,
+                        "name": new_order.product.category.name
+                    }
+                },
+                "count": new_order.counts
+            }
+        }
+        return jsonable_encoder(data)
+
     return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User_id or product_id already exists")
 
 
@@ -50,9 +98,33 @@ async def order_get(id: int):
     check_order = session.query(Orders).filter(Orders.id == id).first()
     if check_order:
         data = {
-            "id": check_order.id,
-            "users_id": check_order.users_id,
-            "product_id": check_order.product_id
+            "succes": True,
+            "code": 201,
+            "message": "Created Order",
+            "data": {
+                "id": check_order.id,
+                "users": {
+                    "id": check_order.users.id,
+                    "first_name": check_order.users.first_name,
+                    "last_name": check_order.users.last_name,
+                    "username": check_order.users.username,
+                    "email": check_order.users.email,
+                    "is_staff": check_order.users.is_staff,
+                    "is_active": check_order.users.is_active
+                },
+                "product_id": {
+                    "id": check_order.product.id,
+                    "name": check_order.product.name,
+                    "description": check_order.product.description,
+                    "price": check_order.product.price,
+                    "category": {
+                        "id": check_order.product.category.id,
+                        "name": check_order.product.category.name
+                    }
+                },
+                "count": check_order.counts,
+                "total": check_order.counts * check_order.product.price
+            }
         }
         return jsonable_encoder(data)
     return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
@@ -84,3 +156,40 @@ async def order_delete(id: int):
         session.commit()
         return HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="Order deleted")
     return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+
+@order_router.post("/user/order")
+async def order_user_get(user_order: UserOrderModel):
+    check_user_order = session.query(Users).filter(Users.username == user_order.username).first()
+    if check_user_order:
+        check_order = session.query(Orders).filter(Orders.users_id == check_user_order.id)
+        if check_order:
+            data = [
+                {
+                    "id": order.id,
+                    "users": {
+                        "id": order.users.id,
+                        "first_name": order.users.first_name,
+                        "last_name": order.users.last_name,
+                        "username": order.users.username,
+                        "email": order.users.email,
+                        "is_staff": order.users.is_staff,
+                        "is_active": order.users.is_active
+                    },
+                    "product_id": {
+                        "id": order.product.id,
+                        "name": order.product.name,
+                        "description": order.product.description,
+                        "price": order.product.price,
+                        "category": {
+                            "id": order.product.category.id,
+                            "name": order.product.category.name
+                        }
+                    },
+                    "count": order.counts
+                }
+                for order in check_order
+            ]
+            return jsonable_encoder(data)
+        return HTTPException(status_code=status.HTTP_200_OK, detail="Bu foydalanuvchida buyurtmalar mavjud emas")
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bunday foydalanuvchi mavjud emas")

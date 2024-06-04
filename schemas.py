@@ -46,3 +46,8 @@ class OrderModel(BaseModel):
         id: Optional[int]
         users_id: int
         product_id: int
+        counts: int
+
+
+class UserOrderModel(BaseModel):
+        username: str
