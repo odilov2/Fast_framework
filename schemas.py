@@ -51,3 +51,7 @@ class OrderModel(BaseModel):
 
 class UserOrderModel(BaseModel):
         username: str
+
+
+class JwtModel(BaseModel):
+    authjwt_secret_key: str = '3ab42577ea4c274120ac14a8cd6d9b307f0b17f94d39a074b5073efe9c9fdbcb'

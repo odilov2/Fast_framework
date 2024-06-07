@@ -1,5 +1,7 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from fastapi import APIRouter
+from fastapi_jwt_auth import AuthJWT
+
 from database import session, ENGINE
 from models import Product, Category
 from fastapi.encoders import jsonable_encoder
@@ -10,9 +12,33 @@ session = session(bind=ENGINE)
 product_router = APIRouter(prefix="/products")
 
 
+# @product_router.get("/")
+# async def product_data(status_code=status.HTTP_200_OK):
+#     products = session.query(Product).all()
+#     data = [
+#         {
+#             "id": product.id,
+#             "name": product.name,
+#             "description": product.description,
+#             "price": product.price,
+#             "category": {
+#                 "id": product.category.id,
+#                 "name": product.category.name
+#             }
+#         }
+#         for product in products
+#     ]
+#     return jsonable_encoder(data)
+
+
 @product_router.get("/")
-async def product_data(status_code=status.HTTP_200_OK):
+async def auth(Authorize: AuthJWT=Depends()):
     products = session.query(Product).all()
+    try:
+        Authorize.jwt_required()
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
+
     data = [
         {
             "id": product.id,
@@ -20,8 +46,8 @@ async def product_data(status_code=status.HTTP_200_OK):
             "description": product.description,
             "price": product.price,
             "category": {
-                "id": product.category.id,
-                "name": product.category.name
+             "id": product.category.id,
+             "name": product.category.name,
             }
         }
         for product in products

@@ -1,6 +1,8 @@
+from fastapi_jwt_auth import AuthJWT
+
 from models import Orders, Users, Product
 from schemas import OrderModel, UserOrderModel
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.encoders import jsonable_encoder
 from database import session, ENGINE
 
@@ -10,7 +12,12 @@ order_router = APIRouter(prefix="/order")
 
 
 @order_router.get("/")
-async def order():
+async def auth(Authorize: AuthJWT=Depends()):
+    try:
+        Authorize.jwt_required()
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
+
     orders = session.query(Orders).all()
     data = [
         {
@@ -39,6 +46,38 @@ async def order():
         for order in orders
     ]
     return jsonable_encoder(data)
+
+
+# @order_router.get("/")
+# async def order():
+#     orders = session.query(Orders).all()
+#     data = [
+#         {
+#             "id": order.id,
+#             "users": {
+#                 "id": order.users.id,
+#                 "first_name": order.users.first_name,
+#                 "last_name": order.users.last_name,
+#                 "username": order.users.username,
+#                 "email": order.users.email,
+#                 "is_staff": order.users.is_staff,
+#                 "is_active": order.users.is_active
+#             },
+#             "product_id": {
+#                 "id": order.product.id,
+#                 "name": order.product.name,
+#                 "description": order.product.description,
+#                 "price": order.product.price,
+#                 "category": {
+#                     "id": order.product.category.id,
+#                     "name": order.product.category.name
+#                 }
+#             },
+#             "count": order.counts
+#         }
+#         for order in orders
+#     ]
+#     return jsonable_encoder(data)
 
 
 @order_router.post('/create')
@@ -131,7 +170,12 @@ async def order_get(id: int):
 
 
 @order_router.put('/{id}')
-async def order_update(id: int, order: OrderModel):
+async def order_update(Authorize: AuthJWT=Depends()):
+    try:
+        Authorize.jwt_required()
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
+    order = session.query(Orders).filter(Orders.id == id).first()
     check_order = session.query(Orders).filter(Orders.id == order.id).first()
     check_user_id = session.query(Users).filter(Users.id == order.users_id).first()
     check_product_id = session.query(Product).filter(Product.id == order.product_id).first()
