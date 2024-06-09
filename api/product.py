@@ -12,33 +12,9 @@ session = session(bind=ENGINE)
 product_router = APIRouter(prefix="/products")
 
 
-# @product_router.get("/")
-# async def product_data(status_code=status.HTTP_200_OK):
-#     products = session.query(Product).all()
-#     data = [
-#         {
-#             "id": product.id,
-#             "name": product.name,
-#             "description": product.description,
-#             "price": product.price,
-#             "category": {
-#                 "id": product.category.id,
-#                 "name": product.category.name
-#             }
-#         }
-#         for product in products
-#     ]
-#     return jsonable_encoder(data)
-
-
 @product_router.get("/")
-async def auth(Authorize: AuthJWT=Depends()):
+async def product_data(status_code=status.HTTP_200_OK):
     products = session.query(Product).all()
-    try:
-        Authorize.jwt_required()
-    except:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
-
     data = [
         {
             "id": product.id,
@@ -46,13 +22,37 @@ async def auth(Authorize: AuthJWT=Depends()):
             "description": product.description,
             "price": product.price,
             "category": {
-             "id": product.category.id,
-             "name": product.category.name,
+                "id": product.category.id,
+                "name": product.category.name
             }
         }
         for product in products
     ]
     return jsonable_encoder(data)
+
+
+# @product_router.get("/")
+# async def auth(Authorize: AuthJWT=Depends()):
+#     products = session.query(Product).all()
+#     try:
+#         Authorize.jwt_required()
+#     except:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
+#
+#     data = [
+#         {
+#             "id": product.id,
+#             "name": product.name,
+#             "description": product.description,
+#             "price": product.price,
+#             "category": {
+#              "id": product.category.id,
+#              "name": product.category.name,
+#             }
+#         }
+#         for product in products
+#     ]
+#     return jsonable_encoder(data)
 
 
 @product_router.post("/create")

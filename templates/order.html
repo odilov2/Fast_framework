@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <ul>
+        {% for order in order %}
+            <h1>Id: {{ order.id }}</h1>
+            <li>
+                <h2>Name: {{ order.id }}</h2>
+                <h2>ProductId: {{ order.product.id }}</h2>
+                <h2>UserId: {{ order.user.id }}</h2>
+                <h2>Count: {{ order.count }}</h2>
+            </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

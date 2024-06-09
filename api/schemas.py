@@ -38,6 +38,7 @@ class ProductModel(BaseModel):
         id: Optional[int]
         name: str
         description: str
+        counts : int
         price: float
         category_id: Optional[int]
 
@@ -47,11 +48,12 @@ class OrderModel(BaseModel):
         users_id: int
         product_id: int
         counts: int
+        oder_status: str
 
 
 class UserOrderModel(BaseModel):
         username: str
 
 
-class JwtModel(BaseModel):
-    authjwt_secret_key: str = '3ab42577ea4c274120ac14a8cd6d9b307f0b17f94d39a074b5073efe9c9fdbcb'
+# class JwtModel(BaseModel):
+#     authjwt_secret_key: str = '968c69c21aacca8fc11df9c57950f5317c47994299512e5f169393dcdd586bfb'
