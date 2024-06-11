@@ -1,3 +1,7 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -13,7 +17,7 @@ SECRET_KEY = 'django-insecure-1%#zr8%yf1)^0bzsy(wg0y$6in05w1ilnmh+ykol7%odu27vnj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.2']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -27,6 +31,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # APPS
     'webapp',
+    'rest_api',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -66,11 +72,11 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "fast_db",
-        "USER": "postgres",
-        "PASSWORD": "7983",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASS"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
